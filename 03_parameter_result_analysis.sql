@@ -1,11 +1,16 @@
-/*
-    03_parameter_result_analysis.sql
+-- ============================================================
+-- 03_parameter_result_analysis.sql
+-- Parameter Result Analysis Queries
+-- Database: Sample watershed monitoring database
+-- Goal: Practice water quality result summaries, parameter review,
+--       qualified result checks, and ranked result analysis.
+-- ============================================================
 
-    Purpose:
-    Analyze water quality parameter results by station and watershed.
-*/
 
--- Parameter result summary by station.
+-- ============================================================
+-- 1. Parameter result summary by station
+-- ============================================================
+
 SELECT
     s.StationID,
     s.StationName,
@@ -33,7 +38,17 @@ ORDER BY
     p.ParameterName;
 
 
--- Parameter result summary by watershed.
+-- Watershed explanation:
+-- This summarizes result counts, minimums, maximums, and averages for each
+-- station and parameter. It provides a compact view of water quality conditions
+-- at each monitoring location.
+
+
+
+-- ============================================================
+-- 2. Parameter result summary by watershed
+-- ============================================================
+
 SELECT
     w.WatershedID,
     w.WatershedName,
@@ -63,7 +78,17 @@ ORDER BY
     p.ParameterName;
 
 
--- Results flagged as non-detects or qualified values.
+-- Watershed explanation:
+-- This rolls parameter results up to the watershed level.
+-- It is useful when comparing water quality patterns across watersheds instead
+-- of reviewing each station separately.
+
+
+
+-- ============================================================
+-- 3. Results flagged as non-detects or qualified values
+-- ============================================================
+
 SELECT
     m.MeasurementID,
     s.StationID,
@@ -87,7 +112,17 @@ ORDER BY
     p.ParameterName;
 
 
--- Highest observed result for each station and parameter.
+-- Watershed explanation:
+-- This lists records with result qualifiers, such as non-detects or other
+-- lab notes. These records often need special attention before averages,
+-- exceedance checks, or public reports are finalized.
+
+
+
+-- ============================================================
+-- 4. Highest observed result for each station and parameter
+-- ============================================================
+
 WITH RankedResults AS (
     SELECT
         m.MeasurementID,
@@ -104,6 +139,7 @@ WITH RankedResults AS (
     FROM Measurements AS m
     WHERE m.ResultValue IS NOT NULL
 )
+
 SELECT
     r.MeasurementID,
     s.StationID,
@@ -123,3 +159,9 @@ WHERE r.ResultRank = 1
 ORDER BY
     s.StationID,
     p.ParameterName;
+
+
+-- Watershed explanation:
+-- This uses a window function to identify the highest observed result for each
+-- station and parameter combination. It is useful for reviewing potential hot
+-- spots, unusual values, or results that may need follow-up.

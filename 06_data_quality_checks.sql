@@ -1,12 +1,16 @@
-/*
-    06_data_quality_checks.sql
+-- ============================================================
+-- 06_data_quality_checks.sql
+-- Data Quality Check Queries
+-- Database: Sample watershed monitoring database
+-- Goal: Practice missing value checks, referential review,
+--       range validation, and QA/QC screening.
+-- ============================================================
 
-    Purpose:
-    Identify missing, incomplete, or unusual watershed measurement records
-    before using the data in reports.
-*/
 
--- Missing required values in the Measurements table.
+-- ============================================================
+-- 1. Missing required values in measurement records
+-- ============================================================
+
 SELECT
     'Missing StationID' AS IssueType,
     COUNT(*) AS IssueCount
@@ -46,7 +50,17 @@ FROM Measurements
 WHERE ResultValue IS NULL;
 
 
--- Measurement records with station IDs that do not exist in the Stations table.
+-- Watershed explanation:
+-- This counts missing values in key measurement fields.
+-- It gives analysts a quick checklist of incomplete records before the data
+-- is used in summaries, dashboards, or reports.
+
+
+
+-- ============================================================
+-- 2. Measurement records with station IDs not in Stations
+-- ============================================================
+
 SELECT
     m.MeasurementID,
     m.StationID,
@@ -62,7 +76,17 @@ ORDER BY
     m.StationID;
 
 
--- Measurement records with parameter IDs that do not exist in the Parameters table.
+-- Watershed explanation:
+-- This identifies measurement records linked to station IDs that do not exist
+-- in the Stations table. It helps catch mismatched IDs, import issues, or
+-- missing station reference records.
+
+
+
+-- ============================================================
+-- 3. Measurement records with parameter IDs not in Parameters
+-- ============================================================
+
 SELECT
     m.MeasurementID,
     m.StationID,
@@ -78,7 +102,17 @@ ORDER BY
     m.ParameterID;
 
 
--- Negative result values for parameters where negatives are usually unexpected.
+-- Watershed explanation:
+-- This identifies measurement records linked to parameter IDs that do not exist
+-- in the Parameters table. It supports cleaner joins and more reliable
+-- parameter-level reporting.
+
+
+
+-- ============================================================
+-- 4. Negative result values for unexpected parameters
+-- ============================================================
+
 SELECT
     m.MeasurementID,
     s.StationID,
@@ -101,7 +135,17 @@ ORDER BY
     p.ParameterName;
 
 
--- pH values outside the expected 0 to 14 range.
+-- Watershed explanation:
+-- This flags negative result values, which may be invalid for many water
+-- quality measurements. These records should be reviewed before using them in
+-- summaries or trend analysis.
+
+
+
+-- ============================================================
+-- 5. pH values outside the expected 0 to 14 range
+-- ============================================================
+
 SELECT
     m.MeasurementID,
     s.StationID,
@@ -123,7 +167,16 @@ ORDER BY
     s.StationID;
 
 
--- Records with unresolved QA/QC flags.
+-- Watershed explanation:
+-- This checks for pH results outside the standard 0 to 14 scale.
+-- It is a targeted validation query for one common water quality parameter.
+
+
+
+-- ============================================================
+-- 6. Records with unresolved QA/QC flags
+-- ============================================================
+
 SELECT
     m.MeasurementID,
     s.StationID,
@@ -146,3 +199,9 @@ ORDER BY
     m.SampleDate DESC,
     s.StationID,
     p.ParameterName;
+
+
+-- Watershed explanation:
+-- This lists records with QA/QC flags that have not been marked as approved or
+-- reviewed. It helps analysts separate records that are ready for reporting
+-- from records that may still need quality review.

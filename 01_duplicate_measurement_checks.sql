@@ -1,12 +1,16 @@
-/*
-    01_duplicate_measurement_checks.sql
+-- ============================================================
+-- 01_duplicate_measurement_checks.sql
+-- Duplicate Measurement Check Queries
+-- Database: Sample watershed monitoring database
+-- Goal: Practice data quality review, duplicate detection,
+--       and analyst-ready watershed measurement validation.
+-- ============================================================
 
-    Purpose:
-    Identify possible duplicate watershed measurement records using station,
-    parameter, sample date, and sample time.
-*/
 
--- Duplicate measurement check requested for this repository.
+-- ============================================================
+-- 1. Basic duplicate measurement key check
+-- ============================================================
+
 SELECT
     StationID,
     ParameterID,
@@ -22,7 +26,18 @@ GROUP BY
 HAVING COUNT(*) > 1;
 
 
--- Duplicate check with station and parameter names for easier review.
+-- Watershed explanation:
+-- This identifies station, parameter, sample date, and sample time combinations
+-- that appear more than once in the Measurements table.
+-- This is useful before reporting because duplicate records can overstate
+-- sampling counts and distort summary statistics.
+
+
+
+-- ============================================================
+-- 2. Duplicate checks with station and parameter names
+-- ============================================================
+
 SELECT
     s.StationID,
     s.StationName,
@@ -51,7 +66,16 @@ ORDER BY
     p.ParameterID;
 
 
--- Full duplicate record detail for analyst review.
+-- Watershed explanation:
+-- This expands the duplicate check by adding readable station and parameter names.
+-- It makes the results easier for analysts, field staff, or reviewers to interpret.
+
+
+
+-- ============================================================
+-- 3. Full duplicate record detail for analyst review
+-- ============================================================
+
 WITH DuplicateKeys AS (
     SELECT
         StationID,
@@ -66,6 +90,7 @@ WITH DuplicateKeys AS (
         SampleTime
     HAVING COUNT(*) > 1
 )
+
 SELECT
     m.*
 FROM Measurements AS m
@@ -79,3 +104,9 @@ ORDER BY
     m.SampleTime,
     m.StationID,
     m.ParameterID;
+
+
+-- Watershed explanation:
+-- This returns the full measurement rows for records flagged as possible duplicates.
+-- It supports follow-up review when analysts need to compare IDs, qualifiers,
+-- result values, units, or QA/QC flags before deciding how to handle the records.

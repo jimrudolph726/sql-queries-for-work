@@ -1,11 +1,16 @@
-/*
-    05_water_quality_criteria_screening.sql
+-- ============================================================
+-- 05_water_quality_criteria_screening.sql
+-- Water Quality Criteria Screening Queries
+-- Database: Sample watershed monitoring database
+-- Goal: Practice criteria joins, exceedance review,
+--       and environmental reporting support.
+-- ============================================================
 
-    Purpose:
-    Screen watershed measurement results against water quality criteria.
-*/
 
--- Measurement results above a maximum water quality criterion.
+-- ============================================================
+-- 1. Measurement results above a maximum criterion
+-- ============================================================
+
 SELECT
     m.MeasurementID,
     s.StationID,
@@ -33,7 +38,17 @@ ORDER BY
     p.ParameterName;
 
 
--- Measurement results below a minimum water quality criterion.
+-- Watershed explanation:
+-- This finds measurement results that are greater than a maximum water quality
+-- criterion. It supports exceedance review and helps identify results that may
+-- require additional attention before reporting.
+
+
+
+-- ============================================================
+-- 2. Measurement results below a minimum criterion
+-- ============================================================
+
 SELECT
     m.MeasurementID,
     s.StationID,
@@ -61,7 +76,17 @@ ORDER BY
     p.ParameterName;
 
 
--- Exceedance count by station and parameter.
+-- Watershed explanation:
+-- This finds measurement results that are lower than a minimum water quality
+-- criterion. It is useful for parameters where low values may indicate a
+-- potential concern or require follow-up review.
+
+
+
+-- ============================================================
+-- 3. Exceedance count by station and parameter
+-- ============================================================
+
 SELECT
     s.StationID,
     s.StationName,
@@ -94,7 +119,17 @@ ORDER BY
     p.ParameterName;
 
 
--- Most recent exceedance by station and parameter.
+-- Watershed explanation:
+-- This summarizes how many criterion exceedances occurred for each station and
+-- parameter. It helps prioritize stations or parameters with repeated results
+-- outside expected water quality ranges.
+
+
+
+-- ============================================================
+-- 4. Most recent exceedance by station and parameter
+-- ============================================================
+
 WITH Exceedances AS (
     SELECT
         m.MeasurementID,
@@ -120,6 +155,7 @@ WITH Exceedances AS (
             AND m.ResultValue < c.MinimumCriterionValue
         )
 )
+
 SELECT
     e.MeasurementID,
     s.StationID,
@@ -139,3 +175,9 @@ WHERE e.ExceedanceRank = 1
 ORDER BY
     s.StationID,
     p.ParameterName;
+
+
+-- Watershed explanation:
+-- This uses a window function to return the most recent exceedance for each
+-- station and parameter. It is useful for current-condition reporting and
+-- follow-up planning.

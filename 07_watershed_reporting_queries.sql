@@ -1,11 +1,16 @@
-/*
-    07_watershed_reporting_queries.sql
+-- ============================================================
+-- 07_watershed_reporting_queries.sql
+-- Watershed Reporting Queries
+-- Database: Sample watershed monitoring database
+-- Goal: Practice repeatable reporting summaries, monthly totals,
+--       coverage review, and monitoring status outputs.
+-- ============================================================
 
-    Purpose:
-    Build repeatable reporting-style queries for watershed monitoring data.
-*/
 
--- Monthly sampling totals by station.
+-- ============================================================
+-- 1. Monthly sampling totals by station
+-- ============================================================
+
 SELECT
     s.StationID,
     s.StationName,
@@ -27,7 +32,17 @@ ORDER BY
     SampleMonth;
 
 
--- Monthly sampling totals by watershed.
+-- Watershed explanation:
+-- This summarizes measurement counts and parameter coverage by station and month.
+-- It can support recurring monitoring reports, dashboard exports, or monthly
+-- watershed activity summaries.
+
+
+
+-- ============================================================
+-- 2. Monthly sampling totals by watershed
+-- ============================================================
+
 SELECT
     w.WatershedID,
     w.WatershedName,
@@ -52,7 +67,17 @@ ORDER BY
     SampleMonth;
 
 
--- Recent results for a field or reporting review.
+-- Watershed explanation:
+-- This rolls monthly sampling activity up to the watershed level.
+-- It helps compare monitoring volume, active stations, and parameter coverage
+-- across watershed areas.
+
+
+
+-- ============================================================
+-- 3. Recent results for field or reporting review
+-- ============================================================
+
 SELECT
     m.MeasurementID,
     s.StationID,
@@ -77,7 +102,17 @@ ORDER BY
     p.ParameterName;
 
 
--- Number of sampled stations by parameter.
+-- Watershed explanation:
+-- This provides a recent-results view with station names, parameter names,
+-- result values, qualifiers, and QA/QC flags. It is useful for routine field,
+-- lab, or reporting review.
+
+
+
+-- ============================================================
+-- 4. Number of sampled stations by parameter
+-- ============================================================
+
 SELECT
     p.ParameterID,
     p.ParameterName,
@@ -96,7 +131,17 @@ ORDER BY
     p.ParameterName;
 
 
--- Station monitoring status summary.
+-- Watershed explanation:
+-- This shows how widely each parameter has been sampled across monitoring
+-- stations. It helps analysts understand parameter coverage and decide which
+-- measures have enough data for broader reporting.
+
+
+
+-- ============================================================
+-- 5. Station monitoring status summary
+-- ============================================================
+
 WITH StationActivity AS (
     SELECT
         StationID,
@@ -108,6 +153,7 @@ WITH StationActivity AS (
     GROUP BY
         StationID
 )
+
 SELECT
     s.StationID,
     s.StationName,
@@ -127,3 +173,10 @@ LEFT JOIN StationActivity AS a
 ORDER BY
     MonitoringStatus,
     s.StationID;
+
+
+-- Watershed explanation:
+-- This creates a reusable station monitoring status summary.
+-- It combines record counts, parameter coverage, sample date ranges, and a
+-- simple status label for use in reporting or follow-up planning.
+-- Date arithmetic may need adjustment depending on the database system.

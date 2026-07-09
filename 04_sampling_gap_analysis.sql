@@ -1,11 +1,16 @@
-/*
-    04_sampling_gap_analysis.sql
+-- ============================================================
+-- 04_sampling_gap_analysis.sql
+-- Sampling Gap Analysis Queries
+-- Database: Sample watershed monitoring database
+-- Goal: Practice monitoring gap review, date comparisons,
+--       and station follow-up analysis.
+-- ============================================================
 
-    Purpose:
-    Review sampling gaps and identify stations that may need follow-up.
-*/
 
--- Days between sampling events for each station.
+-- ============================================================
+-- 1. Days between sampling events for each station
+-- ============================================================
+
 WITH StationSampleDates AS (
     SELECT DISTINCT
         StationID,
@@ -23,6 +28,7 @@ StationSampleSequence AS (
         ) AS PreviousSampleDate
     FROM StationSampleDates
 )
+
 SELECT
     StationID,
     PreviousSampleDate,
@@ -35,7 +41,17 @@ ORDER BY
     SampleDate;
 
 
--- Latest sample date by station.
+-- Watershed explanation:
+-- This compares each station sample date to the previous sample date.
+-- It helps analysts review sampling frequency and identify unusually long gaps
+-- between monitoring events.
+
+
+
+-- ============================================================
+-- 2. Latest sample date by station
+-- ============================================================
+
 SELECT
     s.StationID,
     s.StationName,
@@ -50,8 +66,17 @@ ORDER BY
     MostRecentSampleDate;
 
 
--- Stations with no samples in the last 90 days.
--- Date arithmetic may need adjustment depending on the database system.
+-- Watershed explanation:
+-- This shows the most recent sample date available for every station.
+-- It is a simple monitoring status check for deciding which stations may need
+-- more recent field activity.
+
+
+
+-- ============================================================
+-- 3. Stations with no samples in the last 90 days
+-- ============================================================
+
 WITH LatestStationSample AS (
     SELECT
         StationID,
@@ -60,6 +85,7 @@ WITH LatestStationSample AS (
     GROUP BY
         StationID
 )
+
 SELECT
     s.StationID,
     s.StationName,
@@ -74,7 +100,18 @@ ORDER BY
     s.StationID;
 
 
--- Station-parameter combinations that have not been sampled recently.
+-- Watershed explanation:
+-- This identifies stations with no sample records or no samples in the last
+-- 90 days. It is useful for field planning, inactive station review, and
+-- recurring monitoring checklists.
+-- Date arithmetic may need adjustment depending on the database system.
+
+
+
+-- ============================================================
+-- 4. Station-parameter combinations not sampled recently
+-- ============================================================
+
 WITH LatestStationParameterSample AS (
     SELECT
         StationID,
@@ -85,6 +122,7 @@ WITH LatestStationParameterSample AS (
         StationID,
         ParameterID
 )
+
 SELECT
     s.StationID,
     s.StationName,
@@ -101,3 +139,10 @@ ORDER BY
     l.MostRecentSampleDate,
     s.StationID,
     p.ParameterName;
+
+
+-- Watershed explanation:
+-- This checks sampling gaps at the station and parameter level.
+-- It helps analysts identify parameters that may be missing from recent
+-- monitoring coverage even when the station itself has been sampled.
+-- Date arithmetic may need adjustment depending on the database system.
