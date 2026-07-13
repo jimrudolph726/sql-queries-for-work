@@ -1,7 +1,7 @@
 -- ============================================================
 -- 02_station_sampling_summary.sql
 -- Station Sampling Summary Queries
--- Database: Sample watershed monitoring database
+-- Database: Sample SQL Server watershed monitoring database
 -- Goal: Practice station-level summaries, sampling coverage checks,
 --       and monitoring activity review.
 -- ============================================================

@@ -1,7 +1,7 @@
 -- ============================================================
 -- 01_duplicate_measurement_checks.sql
 -- Duplicate Measurement Check Queries
--- Database: Sample watershed monitoring database
+-- Database: Sample SQL Server watershed monitoring database
 -- Goal: Practice data quality review, duplicate detection,
 --       and analyst-ready watershed measurement validation.
 -- ============================================================

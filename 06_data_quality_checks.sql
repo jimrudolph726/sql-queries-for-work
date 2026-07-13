@@ -1,7 +1,7 @@
 -- ============================================================
 -- 06_data_quality_checks.sql
 -- Data Quality Check Queries
--- Database: Sample watershed monitoring database
+-- Database: Sample SQL Server watershed monitoring database
 -- Goal: Practice missing value checks, referential review,
 --       range validation, and QA/QC screening.
 -- ============================================================

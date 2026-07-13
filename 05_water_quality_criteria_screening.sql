@@ -1,7 +1,7 @@
 -- ============================================================
 -- 05_water_quality_criteria_screening.sql
 -- Water Quality Criteria Screening Queries
--- Database: Sample watershed monitoring database
+-- Database: Sample SQL Server watershed monitoring database
 -- Goal: Practice criteria joins, exceedance review,
 --       and environmental reporting support.
 -- ============================================================

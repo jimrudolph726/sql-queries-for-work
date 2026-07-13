@@ -1,7 +1,7 @@
 -- ============================================================
 -- 03_parameter_result_analysis.sql
 -- Parameter Result Analysis Queries
--- Database: Sample watershed monitoring database
+-- Database: Sample SQL Server watershed monitoring database
 -- Goal: Practice water quality result summaries, parameter review,
 --       qualified result checks, and high result review.
 -- ============================================================

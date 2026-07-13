@@ -22,13 +22,13 @@ Rather than treating SQL as an isolated technical skill, this repository focuses
 ## Tools Used
 
 * DataGrip
-* SQL
+* SQL Server / T-SQL
 * Relational databases
 * GitHub
 
 ## Database
 
-The queries in this repository are written using a sample watershed monitoring database structure containing tables such as:
+The queries in this repository are written using a sample SQL Server watershed monitoring database structure containing tables such as:
 
 * `Measurements`
 * `Stations`
@@ -120,7 +120,7 @@ Skills demonstrated:
 ### 05_water_quality_criteria_screening.sql
 
 Queries for screening measurement results against parameter criteria.
-Examples include exceedance review, exceedance counts by station, and most recent exceedance events.
+Examples include exceedance review, exceedance counts by station, and exceedance detail records with review labels.
 
 Skills demonstrated:
 
@@ -136,7 +136,8 @@ Examples include missing station IDs, missing parameters, missing sample dates, 
 
 Skills demonstrated:
 
-* `UNION ALL`
+* `CASE WHEN`
+* aggregate validation summaries
 * null checks
 * validation logic
 * field and lab data review
@@ -150,7 +151,7 @@ Skills demonstrated:
 
 * reporting queries
 * grouping by station, parameter, and time period
-* common table expressions
+* `CASE WHEN` status labels
 * reusable SQL documentation
 
 ## Example Query
@@ -197,4 +198,4 @@ The emphasis is on writing queries that are not only technically correct, but al
 
 ## SQL Dialect Note
 
-These queries are written in a clear, mostly standard SQL style. Some date functions may need small adjustments depending on the database system being used, such as SQL Server, PostgreSQL, SQLite, Access, or Oracle.
+These queries are written using Microsoft SQL Server syntax, also known as T-SQL. The project uses SQL Server date functions such as `YEAR`, `MONTH`, `DATEADD`, `DATEDIFF`, and `GETDATE`.

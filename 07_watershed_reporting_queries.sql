@@ -1,7 +1,7 @@
 -- ============================================================
 -- 07_watershed_reporting_queries.sql
 -- Watershed Reporting Queries
--- Database: Sample watershed monitoring database
+-- Database: Sample SQL Server watershed monitoring database
 -- Goal: Practice repeatable reporting summaries, monthly totals,
 --       coverage review, and monitoring status outputs.
 -- ============================================================
@@ -14,8 +14,8 @@
 SELECT
     s.StationID,
     s.StationName,
-    EXTRACT(YEAR FROM m.SampleDate) AS SampleYear,
-    EXTRACT(MONTH FROM m.SampleDate) AS SampleMonth,
+    YEAR(m.SampleDate) AS SampleYear,
+    MONTH(m.SampleDate) AS SampleMonth,
     COUNT(*) AS MeasurementCount,
     COUNT(DISTINCT m.ParameterID) AS ParameterCount
 FROM Measurements AS m
@@ -24,8 +24,8 @@ INNER JOIN Stations AS s
 GROUP BY
     s.StationID,
     s.StationName,
-    EXTRACT(YEAR FROM m.SampleDate),
-    EXTRACT(MONTH FROM m.SampleDate)
+    YEAR(m.SampleDate),
+    MONTH(m.SampleDate)
 ORDER BY
     s.StationID,
     SampleYear,
@@ -46,8 +46,8 @@ ORDER BY
 SELECT
     w.WatershedID,
     w.WatershedName,
-    EXTRACT(YEAR FROM m.SampleDate) AS SampleYear,
-    EXTRACT(MONTH FROM m.SampleDate) AS SampleMonth,
+    YEAR(m.SampleDate) AS SampleYear,
+    MONTH(m.SampleDate) AS SampleMonth,
     COUNT(*) AS MeasurementCount,
     COUNT(DISTINCT m.StationID) AS StationCount,
     COUNT(DISTINCT m.ParameterID) AS ParameterCount
@@ -59,8 +59,8 @@ INNER JOIN Watersheds AS w
 GROUP BY
     w.WatershedID,
     w.WatershedName,
-    EXTRACT(YEAR FROM m.SampleDate),
-    EXTRACT(MONTH FROM m.SampleDate)
+    YEAR(m.SampleDate),
+    MONTH(m.SampleDate)
 ORDER BY
     w.WatershedName,
     SampleYear,
@@ -152,7 +152,7 @@ SELECT
     MAX(m.SampleDate) AS MostRecentSampleDate,
     CASE
         WHEN COUNT(m.MeasurementID) = 0 THEN 'No measurements'
-        WHEN MAX(m.SampleDate) < CURRENT_DATE - INTERVAL '90' DAY THEN 'Needs review'
+        WHEN MAX(m.SampleDate) < DATEADD(DAY, -90, CAST(GETDATE() AS date)) THEN 'Needs review'
         ELSE 'Recently sampled'
     END AS MonitoringStatus
 FROM Stations AS s
@@ -171,4 +171,4 @@ ORDER BY
 -- This creates a reusable station monitoring status summary.
 -- It uses one grouped query to combine record counts, parameter coverage,
 -- sample date ranges, and a simple status label.
--- Date arithmetic may need adjustment depending on the database system.
+-- DATEADD and GETDATE are SQL Server date functions.

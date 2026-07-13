@@ -1,7 +1,7 @@
 -- ============================================================
 -- 04_sampling_gap_analysis.sql
 -- Sampling Gap Analysis Queries
--- Database: Sample watershed monitoring database
+-- Database: Sample SQL Server watershed monitoring database
 -- Goal: Practice monitoring gap review, date comparisons,
 --       and station follow-up analysis.
 -- ============================================================
@@ -26,9 +26,13 @@ SELECT
         ORDER BY SampleDate
     ) AS PreviousSampleDate,
     SampleDate,
-    SampleDate - LAG(SampleDate) OVER (
-        PARTITION BY StationID
-        ORDER BY SampleDate
+    DATEDIFF(
+        DAY,
+        LAG(SampleDate) OVER (
+            PARTITION BY StationID
+            ORDER BY SampleDate
+        ),
+        SampleDate
     ) AS DaysBetweenSamples
 FROM StationSampleDates
 ORDER BY
@@ -84,7 +88,7 @@ GROUP BY
     s.StationID,
     s.StationName
 HAVING MAX(m.SampleDate) IS NULL
-    OR MAX(m.SampleDate) < CURRENT_DATE - INTERVAL '90' DAY
+    OR MAX(m.SampleDate) < DATEADD(DAY, -90, CAST(GETDATE() AS date))
 ORDER BY
     MostRecentSampleDate,
     s.StationID;
@@ -95,7 +99,7 @@ ORDER BY
 -- 90 days. It is useful for field planning, inactive station review, and
 -- recurring monitoring checklists.
 -- The HAVING clause filters after the latest sample date is calculated.
--- Date arithmetic may need adjustment depending on the database system.
+-- DATEADD and GETDATE are SQL Server date functions.
 
 
 
@@ -119,7 +123,7 @@ GROUP BY
     s.StationName,
     p.ParameterID,
     p.ParameterName
-HAVING MAX(m.SampleDate) < CURRENT_DATE - INTERVAL '90' DAY
+HAVING MAX(m.SampleDate) < DATEADD(DAY, -90, CAST(GETDATE() AS date))
 ORDER BY
     MostRecentSampleDate,
     s.StationID,
@@ -131,4 +135,4 @@ ORDER BY
 -- It helps analysts identify parameters that may be missing from recent
 -- monitoring coverage even when the station itself has been sampled.
 -- The query groups records first, then uses HAVING to keep only older activity.
--- Date arithmetic may need adjustment depending on the database system.
+-- DATEADD and GETDATE are SQL Server date functions.
