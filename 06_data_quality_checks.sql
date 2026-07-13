@@ -8,52 +8,22 @@
 
 
 -- ============================================================
--- 1. Missing required values in measurement records
+-- 1. Missing required value count summary
 -- ============================================================
 
 SELECT
-    'Missing StationID' AS IssueType,
-    COUNT(*) AS IssueCount
-FROM Measurements
-WHERE StationID IS NULL
-
-UNION ALL
-
-SELECT
-    'Missing ParameterID' AS IssueType,
-    COUNT(*) AS IssueCount
-FROM Measurements
-WHERE ParameterID IS NULL
-
-UNION ALL
-
-SELECT
-    'Missing SampleDate' AS IssueType,
-    COUNT(*) AS IssueCount
-FROM Measurements
-WHERE SampleDate IS NULL
-
-UNION ALL
-
-SELECT
-    'Missing SampleTime' AS IssueType,
-    COUNT(*) AS IssueCount
-FROM Measurements
-WHERE SampleTime IS NULL
-
-UNION ALL
-
-SELECT
-    'Missing ResultValue' AS IssueType,
-    COUNT(*) AS IssueCount
-FROM Measurements
-WHERE ResultValue IS NULL;
+    SUM(CASE WHEN StationID IS NULL THEN 1 ELSE 0 END) AS MissingStationIDCount,
+    SUM(CASE WHEN ParameterID IS NULL THEN 1 ELSE 0 END) AS MissingParameterIDCount,
+    SUM(CASE WHEN SampleDate IS NULL THEN 1 ELSE 0 END) AS MissingSampleDateCount,
+    SUM(CASE WHEN SampleTime IS NULL THEN 1 ELSE 0 END) AS MissingSampleTimeCount,
+    SUM(CASE WHEN ResultValue IS NULL THEN 1 ELSE 0 END) AS MissingResultValueCount
+FROM Measurements;
 
 
 -- Watershed explanation:
--- This counts missing values in key measurement fields.
--- It gives analysts a quick checklist of incomplete records before the data
--- is used in summaries, dashboards, or reports.
+-- This counts missing values in key measurement fields in one summary row.
+-- Each CASE statement turns a missing value into 1, and SUM adds those flags.
+-- It is a compact checklist for incomplete records before reporting.
 
 
 

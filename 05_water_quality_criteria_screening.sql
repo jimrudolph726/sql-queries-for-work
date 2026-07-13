@@ -127,57 +127,49 @@ ORDER BY
 
 
 -- ============================================================
--- 4. Most recent exceedance by station and parameter
+-- 4. Exceedance detail with review type
 -- ============================================================
 
-WITH Exceedances AS (
-    SELECT
-        m.MeasurementID,
-        m.StationID,
-        m.ParameterID,
-        m.SampleDate,
-        m.SampleTime,
-        m.ResultValue,
-        m.ResultUnit,
-        ROW_NUMBER() OVER (
-            PARTITION BY m.StationID, m.ParameterID
-            ORDER BY m.SampleDate DESC, m.SampleTime DESC
-        ) AS ExceedanceRank
-    FROM Measurements AS m
-    INNER JOIN ParameterCriteria AS c
-        ON m.ParameterID = c.ParameterID
-    WHERE (
-            c.MaximumCriterionValue IS NOT NULL
-            AND m.ResultValue > c.MaximumCriterionValue
-        )
-        OR (
-            c.MinimumCriterionValue IS NOT NULL
-            AND m.ResultValue < c.MinimumCriterionValue
-        )
-)
-
 SELECT
-    e.MeasurementID,
+    m.MeasurementID,
     s.StationID,
     s.StationName,
     p.ParameterID,
     p.ParameterName,
-    e.SampleDate,
-    e.SampleTime,
-    e.ResultValue,
-    e.ResultUnit
-FROM Exceedances AS e
+    m.SampleDate,
+    m.SampleTime,
+    m.ResultValue,
+    m.ResultUnit,
+    CASE
+        WHEN c.MaximumCriterionValue IS NOT NULL
+            AND m.ResultValue > c.MaximumCriterionValue
+            THEN 'Above maximum criterion'
+        WHEN c.MinimumCriterionValue IS NOT NULL
+            AND m.ResultValue < c.MinimumCriterionValue
+            THEN 'Below minimum criterion'
+    END AS ReviewType
+FROM Measurements AS m
 INNER JOIN Stations AS s
-    ON e.StationID = s.StationID
+    ON m.StationID = s.StationID
 INNER JOIN Parameters AS p
-    ON e.ParameterID = p.ParameterID
-WHERE e.ExceedanceRank = 1
+    ON m.ParameterID = p.ParameterID
+INNER JOIN ParameterCriteria AS c
+    ON m.ParameterID = c.ParameterID
+WHERE (
+        c.MaximumCriterionValue IS NOT NULL
+        AND m.ResultValue > c.MaximumCriterionValue
+    )
+    OR (
+        c.MinimumCriterionValue IS NOT NULL
+        AND m.ResultValue < c.MinimumCriterionValue
+    )
 ORDER BY
+    m.SampleDate DESC,
     s.StationID,
     p.ParameterName;
 
 
 -- Watershed explanation:
--- This uses a window function to return the most recent exceedance for each
--- station and parameter. It is useful for current-condition reporting and
--- follow-up planning.
+-- This returns exceedance records and labels whether each result is above a
+-- maximum criterion or below a minimum criterion.
+-- It avoids ranking logic and gives a clear review list for reporting follow-up.

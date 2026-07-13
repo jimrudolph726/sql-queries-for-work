@@ -3,7 +3,7 @@
 -- Parameter Result Analysis Queries
 -- Database: Sample watershed monitoring database
 -- Goal: Practice water quality result summaries, parameter review,
---       qualified result checks, and ranked result analysis.
+--       qualified result checks, and high result review.
 -- ============================================================
 
 
@@ -120,48 +120,34 @@ ORDER BY
 
 
 -- ============================================================
--- 4. Highest observed result for each station and parameter
+-- 4. Highest result value by station and parameter
 -- ============================================================
 
-WITH RankedResults AS (
-    SELECT
-        m.MeasurementID,
-        m.StationID,
-        m.ParameterID,
-        m.SampleDate,
-        m.SampleTime,
-        m.ResultValue,
-        m.ResultUnit,
-        ROW_NUMBER() OVER (
-            PARTITION BY m.StationID, m.ParameterID
-            ORDER BY m.ResultValue DESC, m.SampleDate DESC, m.SampleTime DESC
-        ) AS ResultRank
-    FROM Measurements AS m
-    WHERE m.ResultValue IS NOT NULL
-)
-
 SELECT
-    r.MeasurementID,
     s.StationID,
     s.StationName,
     p.ParameterID,
     p.ParameterName,
-    r.SampleDate,
-    r.SampleTime,
-    r.ResultValue,
-    r.ResultUnit
-FROM RankedResults AS r
+    m.ResultUnit,
+    MAX(m.ResultValue) AS HighestResult
+FROM Measurements AS m
 INNER JOIN Stations AS s
-    ON r.StationID = s.StationID
+    ON m.StationID = s.StationID
 INNER JOIN Parameters AS p
-    ON r.ParameterID = p.ParameterID
-WHERE r.ResultRank = 1
+    ON m.ParameterID = p.ParameterID
+WHERE m.ResultValue IS NOT NULL
+GROUP BY
+    s.StationID,
+    s.StationName,
+    p.ParameterID,
+    p.ParameterName,
+    m.ResultUnit
 ORDER BY
     s.StationID,
     p.ParameterName;
 
 
 -- Watershed explanation:
--- This uses a window function to identify the highest observed result for each
--- station and parameter combination. It is useful for reviewing potential hot
--- spots, unusual values, or results that may need follow-up.
+-- This shows the highest measured result for each station and parameter.
+-- It uses a simple MAX summary instead of a window function, which makes the
+-- query easier to explain while still supporting high-value review.

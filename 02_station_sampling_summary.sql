@@ -61,34 +61,28 @@ ORDER BY
 
 
 -- ============================================================
--- 3. Most recent sampling event by station
+-- 3. Most recent sampling date by station
 -- ============================================================
-
-WITH LatestStationSample AS (
-    SELECT
-        StationID,
-        MAX(SampleDate) AS MostRecentSampleDate
-    FROM Measurements
-    GROUP BY
-        StationID
-)
 
 SELECT
     s.StationID,
     s.StationName,
-    l.MostRecentSampleDate
+    MAX(m.SampleDate) AS MostRecentSampleDate
 FROM Stations AS s
-INNER JOIN LatestStationSample AS l
-    ON s.StationID = l.StationID
+LEFT JOIN Measurements AS m
+    ON s.StationID = m.StationID
+GROUP BY
+    s.StationID,
+    s.StationName
 ORDER BY
-    l.MostRecentSampleDate DESC,
+    MostRecentSampleDate DESC,
     s.StationID;
 
 
 -- Watershed explanation:
--- This shows the latest sample date available for each monitored station.
--- It helps analysts confirm which stations have recent activity and which
--- stations may need closer review.
+-- This uses MAX to show the latest sample date available for each station.
+-- It is easier to explain than a separate CTE and still answers the same
+-- monitoring review question.
 
 
 

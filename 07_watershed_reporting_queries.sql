@@ -142,34 +142,26 @@ ORDER BY
 -- 5. Station monitoring status summary
 -- ============================================================
 
-WITH StationActivity AS (
-    SELECT
-        StationID,
-        COUNT(*) AS MeasurementCount,
-        COUNT(DISTINCT ParameterID) AS ParameterCount,
-        MIN(SampleDate) AS FirstSampleDate,
-        MAX(SampleDate) AS MostRecentSampleDate
-    FROM Measurements
-    GROUP BY
-        StationID
-)
-
 SELECT
     s.StationID,
     s.StationName,
     s.WatershedID,
-    COALESCE(a.MeasurementCount, 0) AS MeasurementCount,
-    COALESCE(a.ParameterCount, 0) AS ParameterCount,
-    a.FirstSampleDate,
-    a.MostRecentSampleDate,
+    COUNT(m.MeasurementID) AS MeasurementCount,
+    COUNT(DISTINCT m.ParameterID) AS ParameterCount,
+    MIN(m.SampleDate) AS FirstSampleDate,
+    MAX(m.SampleDate) AS MostRecentSampleDate,
     CASE
-        WHEN a.StationID IS NULL THEN 'No measurements'
-        WHEN a.MostRecentSampleDate < CURRENT_DATE - INTERVAL '90' DAY THEN 'Needs review'
+        WHEN COUNT(m.MeasurementID) = 0 THEN 'No measurements'
+        WHEN MAX(m.SampleDate) < CURRENT_DATE - INTERVAL '90' DAY THEN 'Needs review'
         ELSE 'Recently sampled'
     END AS MonitoringStatus
 FROM Stations AS s
-LEFT JOIN StationActivity AS a
-    ON s.StationID = a.StationID
+LEFT JOIN Measurements AS m
+    ON s.StationID = m.StationID
+GROUP BY
+    s.StationID,
+    s.StationName,
+    s.WatershedID
 ORDER BY
     MonitoringStatus,
     s.StationID;
@@ -177,6 +169,6 @@ ORDER BY
 
 -- Watershed explanation:
 -- This creates a reusable station monitoring status summary.
--- It combines record counts, parameter coverage, sample date ranges, and a
--- simple status label for use in reporting or follow-up planning.
+-- It uses one grouped query to combine record counts, parameter coverage,
+-- sample date ranges, and a simple status label.
 -- Date arithmetic may need adjustment depending on the database system.
